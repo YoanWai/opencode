@@ -138,7 +138,7 @@ export const make = (deps: Deps) => {
     const initial = yield* deps.store.get(sessionID)
     if (!initial?.parentID && jobState.mode === "none") {
       return {
-        commit: () => deps.store.release(sessionID),
+        commit: () => deps.store.release(sessionID, period?.startedSeq),
         deliver: Effect.void,
       }
     }
@@ -153,7 +153,7 @@ export const make = (deps: Deps) => {
     const commit = () =>
       Effect.gen(function* () {
         box.postCommit = { type: "none" }
-        yield* deps.store.release(sessionID)
+        yield* deps.store.release(sessionID, period?.startedSeq)
         const child = yield* deps.store.get(sessionID)
         const parent = child?.parentID ? yield* deps.store.get(child.parentID) : undefined
         if (!child?.parentID || !SubagentMetadata.notify(child.metadata) || !parent) {
